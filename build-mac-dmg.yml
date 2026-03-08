@@ -1,0 +1,30 @@
+name: Build Mac DMG
+
+on:
+  workflow_dispatch:
+
+jobs:
+  build:
+    runs-on: macos-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+
+      - run: unzip -q Nio-Intelligence-Agent-Command-Centre-source.zip -d extracted
+
+      - run: npm ci
+        working-directory: extracted
+
+      - run: npm ci
+        working-directory: extracted/server
+
+      - run: npm run pack:mac
+        working-directory: extracted
+
+      - uses: actions/upload-artifact@v4
+        with:
+          name: mac-dmg
+          path: extracted/dist/*.dmg
