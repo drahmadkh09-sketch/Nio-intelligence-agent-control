@@ -1,65 +1,36 @@
-name: Build unsigned macOS DMG
+name: Build Mac DMG
 
 on:
 workflow_dispatch:
-push:
-branches:
-- main
-paths:
-- Nio-Intelligence-Agent-Command-Centre-source.zip
-- .github/workflows/build-mac-dmg.yml
-release:
-types:
-- published
-
-permissions:
-contents: write
 
 jobs:
-build-mac-dmg:
+build:
 runs-on: macos-latest
 
 steps:
-- name: Checkout
-uses: actions/checkout@v4
+- uses: actions/checkout@v4
 
-- name: Setup Node.js
-uses: actions/setup-node@v4
+- uses: actions/setup-node@v4
 with:
-node-version: 20
+node-version: "20"
 
-- name: Unpack source zip
-run: |
-mkdir -p extracted
-unzip -q "Nio-Intelligence-Agent-Command-Centre-source.zip" -d extracted
+- name: Unzip source
+run: unzip -q Nio-Intelligence-Agent-Command-Centre-source.zip -d extracted
 
-- name: Install root dependencies
-working-directory: extracted
+- name: Install app deps
 run: npm ci
+working-directory: extracted
 
-- name: Install server dependencies
+- name: Install server deps
+run: npm ci
 working-directory: extracted/server
-run: npm ci
 
-- name: Build unsigned DMG
-working-directory: extracted
+- name: Build DMG
 run: npm run pack:mac
+working-directory: extracted
 
-- name: Collect artifacts
-run: |
-mkdir -p artifacts
-cp extracted/dist/*.dmg artifacts/
-
-- name: Upload DMG artifact
+- name: Upload DMG
 uses: actions/upload-artifact@v4
 with:
-name: nio-intelligence-agent-command-centre-mac-dmg
-path: artifacts/*.dmg
-if-no-files-found: error
-retention-days: 14
-
-- name: Attach DMG to GitHub Release (release event only)
-if: github.event_name == 'release'
-uses: softprops/action-gh-release@v2
-with:
-files: artifacts/*.dmg
+name: mac-dmg
+path: extracted/dist/*.dmg
