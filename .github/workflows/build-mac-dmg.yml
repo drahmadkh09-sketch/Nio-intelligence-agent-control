@@ -18,16 +18,16 @@ node-version: "20"
 run: unzip -q Nio-Intelligence-Agent-Command-Centre-source.zip -d extracted
 
 - name: Install app deps
-run: npm ci
 working-directory: extracted
+run: npm ci
 
 - name: Install server deps
-run: npm ci
 working-directory: extracted/server
+run: npm ci
 
 - name: Build DMG
-run: npm run pack:mac
 working-directory: extracted
+run: npm run pack:mac
 
 - name: Upload DMG
 uses: actions/upload-artifact@v4
